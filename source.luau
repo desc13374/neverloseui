@@ -992,7 +992,7 @@ NeverLose.ProcessParams = LPH_NO_VIRTUALIZE(function(self , Params , Fixed)
 	return k;
 end);
 
-NeverLose.EnabledBlur = true;
+NeverLose.EnabledBlur = false;
 NeverLose.BlurModuleParent = workspace.CurrentCamera;
 
 NeverLose.GetCalculatePosition = LPH_NO_VIRTUALIZE(function(planePos, planeNormal, rayOrigin, rayDirection)
