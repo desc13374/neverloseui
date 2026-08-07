@@ -1710,6 +1710,9 @@ NeverLose.KeyEnum = {
 	LeftAlt = "LAlt",
 	RightAlt = "RAlt",
 	Escape = "Esc",
+	M3B = "Mouse3",
+	M4B = "Mouse4",
+	M5B = "Mouse5",
 };
 
 NeverLose.EnumReverse = {};
@@ -2530,10 +2533,12 @@ function NeverLose:RegisiterHandler(Handler: Frame , Signal)
 				if Key.KeyCode ~= Enum.KeyCode.Unknown and not IsBlacklist(Key.KeyCode) and not IsBlacklist(Key.KeyCode.Name) then
 					Selected = Key.KeyCode;
 				else
-					if Key.UserInputType == Enum.UserInputType.MouseButton1 and not IsBlacklist(Enum.UserInputType.MouseButton1) and not IsBlacklist("M1B") then
-						Selected = "M1B";
-					elseif Key.UserInputType == Enum.UserInputType.MouseButton2 and not IsBlacklist(Enum.UserInputType.MouseButton2) and not IsBlacklist("M2B") then
-						Selected = "M2B";
+					if Key.UserInputType == Enum.UserInputType.MouseButton3 and not IsBlacklist("M3B") then
+						Selected = "M3B";
+					elseif Key.UserInputType.Name == "MouseButton4" and not IsBlacklist("M4B") then
+						Selected = "M4B";
+					elseif Key.UserInputType.Name == "MouseButton5" and not IsBlacklist("M5B") then
+						Selected = "M5B";
 					end;
 				end;
 			end;
