@@ -3945,25 +3945,23 @@ function NeverLose:CreateWindow(Config)
 		if Window.__3DRender then
 			if WindowFrame.BackgroundTransparency > 0.9 then
 				WindowFrame.Visible = false;
-				WindowFrame.Parent = nil
 			else
 				WindowFrame.Visible = true;
-
+				if WindowFrame.Parent ~= Window.SurfaceGui then
+					pcall(function() WindowFrame.Parent = Window.SurfaceGui; end)
+				end
 				NeverLose.PlayAnimate(WindowFrame,VSlowTween , {
 					Position = UDim2.fromScale(0.5,0.5);
 				});
-
-				WindowFrame.Parent = Window.SurfaceGui;
 			end;
 		else
 			if WindowFrame.BackgroundTransparency > 0.9 then
 				WindowFrame.Visible = false;
-				WindowFrame.Parent = nil
 			else
 				WindowFrame.Visible = true;
-				WindowFrame.Parent = NeverLose.ScreenGui
-
-
+				if WindowFrame.Parent ~= NeverLose.ScreenGui then
+					pcall(function() WindowFrame.Parent = NeverLose.ScreenGui; end)
+				end
 			end;
 		end;
 	end);
@@ -3973,7 +3971,7 @@ function NeverLose:CreateWindow(Config)
 	Window.SetRender = LPH_NO_VIRTUALIZE(function(self , value)
 		if value then
 			WindowFrame.Visible = true;
-			WindowFrame.Parent = Window.__3DRender and Window.SurfaceGui or NeverLose.ScreenGui;
+			pcall(function() WindowFrame.Parent = Window.__3DRender and Window.SurfaceGui or NeverLose.ScreenGui; end)
 
 			NeverLose.PlayAnimate(WindowFrame , SlowyTween , {
 				BackgroundTransparency = (NeverLose.EnabledBlur and 0.055) or 0.0255,
@@ -4063,7 +4061,6 @@ function NeverLose:CreateWindow(Config)
 			Window.Shadow:Render(true);
 		else
 			WindowFrame.Visible = false;
-			WindowFrame.Parent = nil;
 
 			if NeverLose.ActiveOptionSignals then
 				for _, sig in ipairs(NeverLose.ActiveOptionSignals) do
