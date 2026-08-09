@@ -1377,30 +1377,8 @@ function NeverLose:CreateOptionWindow(Frame: Frame , Zindex)
 		end;
 	end);
 
-	function Window:UpdateVisibility()
-		local isSignalOn = Window.Signal:GetValue() == true;
-		local hasChildOpen = false;
-		if Window.ActiveChildren then
-			for _, child in ipairs(Window.ActiveChildren) do
-				if child.Signal and child.Signal:GetValue() == true then
-					hasChildOpen = true;
-					break;
-				end
-			end
-		end
-
-		local shouldRender = isSignalOn and not hasChildOpen;
-		Window.SetRender(shouldRender);
-
-		if Window.ParentWindow and Window.ParentWindow.UpdateVisibility then
-			Window.ParentWindow:UpdateVisibility();
-		end
-	end
-
 	Window.SetRender(false);
-	NeverLose:AddSignal(Window.Signal:Connect(LPH_NO_VIRTUALIZE(function()
-		Window:UpdateVisibility();
-	end)));
+	Window.Signal:Connect(Window.SetRender);
 
 	table.insert(NeverLose.ActiveOptionSignals, Window.Signal);
 
@@ -2280,12 +2258,6 @@ function NeverLose:RegisiterHandler(Handler: Frame , Signal)
 		local Window = NeverLose:CreateOptionWindow(Option , ZINdex + 13);
 		if handle.OptionWindow then
 			table.insert(handle.OptionWindow.ActiveChildren, Window);
-			Window.ParentWindow = handle.OptionWindow;
-			NeverLose:AddSignal(Window.Signal:Connect(LPH_NO_VIRTUALIZE(function()
-				if handle.OptionWindow and handle.OptionWindow.UpdateVisibility then
-					handle.OptionWindow:UpdateVisibility();
-				end
-			end)));
 		end
 
 		local reciveSignal;
@@ -2307,12 +2279,12 @@ function NeverLose:RegisiterHandler(Handler: Frame , Signal)
 
 		local function isMouseOverWindowOrChild(win)
 			if not win then return false end
-			if win.Root and win.Root.Parent and win.Root.Visible and NeverLose:IsMouseOverFrame(win.Root) then return true end
+			if NeverLose:IsMouseOverFrame(win.Root) then return true end
 
 			if win.ActivePopups then
 				for _, popup in ipairs(win.ActivePopups) do
 					if popup.OpenSignal and popup.OpenSignal:GetValue() == true then
-						if popup.Root and popup.Root.Parent and popup.Root.Visible and NeverLose:IsMouseOverFrame(popup.Root) then
+						if popup.Root and NeverLose:IsMouseOverFrame(popup.Root) then
 							return true
 						end
 					end
