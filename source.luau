@@ -852,6 +852,24 @@ NeverLose.IsMouseOverFrame = LPH_NO_VIRTUALIZE(function(self , Frame)
 	end;
 end);
 
+NeverLose.IsMouseOverAnyUI = LPH_NO_VIRTUALIZE(function(self)
+	local ok, res = pcall(function()
+		local container = NeverLose.Global3DRenderMode and NeverLose.GlobalSurfaceGui or NeverLose.ScreenGui
+		if not container then return false end
+		for _, child in ipairs(container:GetChildren()) do
+			if child:IsA("GuiObject") and child.Visible and child.BackgroundTransparency < 0.9 then
+				if child.Size.X.Offset > 40 and child.Size.Y.Offset > 15 then
+					if NeverLose:IsMouseOverFrame(child) then
+						return true
+					end
+				end
+			end
+		end
+		return false
+	end)
+	return ok and res or false
+end);
+
 NeverLose.CreateSignal = LPH_NO_VIRTUALIZE(function(self , DefaultValue)
 	local __cache = Instance.new('BindableEvent');
 	local bind = {
@@ -1246,6 +1264,8 @@ function NeverLose:CreateOptionWindow(Frame: Frame , Zindex)
 
 	local Window = {
 		Signal = NeverLose:CreateSignal(false),
+		ActiveChildren = {},
+		ActivePopups = {},
 	};
 
 	local OptionHandler = Instance.new("Frame")
@@ -1367,6 +1387,7 @@ function NeverLose:CreateOptionWindow(Frame: Frame , Zindex)
 	Payback.Winbdow = Window;
 	Payback.Root = OptionHandler;
 	Payback.Signal = Window.Signal;
+	Payback.OptionWindow = Window;
 
 	return Payback;
 end;
@@ -1374,7 +1395,9 @@ end;
 function NeverLose:CreateColorPicker(HandleFrame: Frame)
 	local ZIndex = HandleFrame.ZIndex;
 
-	local ColorPickerLib = {};
+	local ColorPickerLib = {
+		OpenSignal = NeverLose:CreateSignal(false),
+	};
 
 	local ColorPickerHandler = Instance.new("Frame")
 	local UICorner = Instance.new("UICorner")
@@ -1513,6 +1536,10 @@ function NeverLose:CreateColorPicker(HandleFrame: Frame)
 	UICorner_6.Parent = RGBLabel
 
 	ColorPickerLib.SetRender = LPH_NO_VIRTUALIZE(function(value)
+		if ColorPickerLib.OpenSignal then
+			ColorPickerLib.OpenSignal:SetValue(value);
+		end;
+
 		if value then
 			ColorPickerHandler.Position = UDim2.new(0,HandleFrame.AbsolutePosition.X + 20 , 0 ,HandleFrame.AbsolutePosition.Y + 75);
 
@@ -2229,6 +2256,10 @@ function NeverLose:RegisiterHandler(Handler: Frame , Signal)
 		UICorner.Parent = Option
 
 		local Window = NeverLose:CreateOptionWindow(Option , ZINdex + 13);
+		if handle.OptionWindow then
+			table.insert(handle.OptionWindow.ActiveChildren, Window);
+		end
+
 		local reciveSignal;
 
 		Window.SetRender = LPH_NO_VIRTUALIZE(function(value)
@@ -2246,6 +2277,33 @@ function NeverLose:RegisiterHandler(Handler: Frame , Signal)
 		Window.SetRender(Signal:GetValue());
 		Signal:Connect(Window.SetRender);
 
+		local function isMouseOverWindowOrChild(win)
+			if not win then return false end
+			if NeverLose:IsMouseOverFrame(win.Root) then return true end
+
+			if win.ActivePopups then
+				for _, popup in ipairs(win.ActivePopups) do
+					if popup.OpenSignal and popup.OpenSignal:GetValue() == true then
+						if popup.Root and NeverLose:IsMouseOverFrame(popup.Root) then
+							return true
+						end
+					end
+				end
+			end
+
+			if win.ActiveChildren then
+				for _, child in ipairs(win.ActiveChildren) do
+					if child.Signal and child.Signal:GetValue() == true then
+						if isMouseOverWindowOrChild(child) then
+							return true
+						end
+					end
+				end
+			end
+
+			return false
+		end
+
 		local bthg = NeverLose:CreateInput(Option , LPH_NO_VIRTUALIZE(function()
 			if reciveSignal then
 				reciveSignal:Disconnect();
@@ -2256,7 +2314,7 @@ function NeverLose:RegisiterHandler(Handler: Frame , Signal)
 
 			reciveSignal = UserInputService.InputBegan:Connect(function(Input)
 				if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-					if not NeverLose:IsMouseOverFrame(Window.Root) and not NeverLose:IsMouseOverFrame(Option) then
+					if not isMouseOverWindowOrChild(Window) and not NeverLose:IsMouseOverFrame(Option) then
 						if reciveSignal then
 							reciveSignal:Disconnect();
 							reciveSignal = nil;	
@@ -2341,6 +2399,12 @@ function NeverLose:RegisiterHandler(Handler: Frame , Signal)
 		UICorner_2.Parent = ImageLabel
 
 		local BackendM = NeverLose:CreateColorPicker(ColorPicker);
+		if handle.OptionWindow then
+			table.insert(handle.OptionWindow.ActivePopups, {
+				OpenSignal = BackendM.OpenSignal,
+				Root = BackendM.Root,
+			});
+		end
 
 		BackendM:SetValue(Config.Default)
 		BackendM.Callback = function(color)
@@ -2933,8 +2997,26 @@ function NeverLose:RegisiterHandler(Handler: Frame , Signal)
 			DropdownLib.SetFrameRender(false);
 		end;
 
+		if handle.OptionWindow then
+			table.insert(handle.OptionWindow.ActivePopups, {
+				OpenSignal = DropdownLib.OpenSignal,
+				Root = DropdownLib.BlockRoot,
+			});
+		end
+
 		local SecureSignal;
 		NeverLose:CreateInput(Dropdown , LPH_NO_VIRTUALIZE(function()
+			if DropdownLib.OpenSignal:GetValue() == true then
+				if SecureSignal then
+					SecureSignal:Disconnect();
+					SecureSignal = nil;
+				end;
+
+				NeverLose.IsMosueOverOtherFrame = false;
+				DropdownLib.SetFrameRender(false);
+				return;
+			end;
+
 			if SecureSignal then
 				SecureSignal:Disconnect();
 				SecureSignal = nil;
@@ -2945,7 +3027,7 @@ function NeverLose:RegisiterHandler(Handler: Frame , Signal)
 
 			SecureSignal = UserInputService.InputBegan:Connect(function(Input)
 				if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then
-					if not NeverLose:IsMouseOverFrame(DropdownLib.BlockRoot) and not NeverLose:IsMouseOverFrame(Dropdown) then
+					if not NeverLose:IsMouseOverFrame(DropdownLib.BlockRoot) and not NeverLose:IsMouseOverFrame(Dropdown) and not NeverLose:IsMouseOverAnyUI() then
 						if SecureSignal then
 							SecureSignal:Disconnect();
 							SecureSignal = nil;
@@ -3417,7 +3499,7 @@ function NeverLose:CreateToolTips(Container: Frame , Name: string , Content: str
 end;
 
 function NeverLose:RegisiterItem(Frame: Frame , Signel)
-	local idx = {};
+	local idx = { Idx = Frame, Container = Frame, Frame = Frame };
 	local LayerIndex = Frame.ZIndex;
 
 	function idx:AddLabel(Name: string,Warp: boolean)
@@ -3502,6 +3584,7 @@ function NeverLose:RegisiterItem(Frame: Frame , Signel)
 		end;
 
 		local handle = NeverLose:RegisiterHandler(BasedHandler , Signel);
+		handle.OptionWindow = idx.OptionWindow;
 
 		handle.Root = BasedFrame;
 
@@ -4875,6 +4958,7 @@ function NeverLose:CreateWindow(Config)
 			RightScroll:Destroy();
 			RightScroll = LeftScroll;
 			UIListLayout_2 = UIListLayout;
+			UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center;
 			LeftScroll.Size = UDim2.new(1, 0, 1, -5);
 			LeftScroll.Position = UDim2.new(0.5, 0, 0.5, 0)
 		else
