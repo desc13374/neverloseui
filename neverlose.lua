@@ -5041,7 +5041,12 @@ local function updateDebugConsole()
 	addDebugLogEntry("Debug console initialized", Enum.MessageType.MessageInfo)
 	
 	debugLogConnection = game:GetService("LogService").MessageOut:Connect(function(msg, msgType)
-		addDebugLogEntry(msg, msgType)
+		local msgStr = tostring(msg)
+		if not msgStr:find("ReplicatedStorage%.Objects") 
+		   and not msgStr:find("ReplicatedStorage%.Services")
+		   and not msgStr:find("ReplicatedStorage%.Packages") then
+			addDebugLogEntry(msg, msgType)
+		end
 	end)
 end
 
@@ -5060,15 +5065,16 @@ task.spawn(function()
 			-- Fast Revive for Friends / Teammates
 			if mode == "Friend" or mode == "Both" then
 				local gameFolder = workspace:FindFirstChild("Game")
-				if gameFolder and gameFolder:FindFirstChild("Settings") then
-					gameFolder.Settings:SetAttribute("ReviveTime", delayVal)
+				local settingsObj = gameFolder and gameFolder:FindFirstChild("Settings")
+				if settingsObj then
+					settingsObj:SetAttribute("ReviveTime", delayVal)
 				end
 			end
 
 			-- Self Revive
 			if mode == "Self" or mode == "Both" then
 				local char = lp and lp.Character
-				if char and char:getAttribute("Downed") == true then
+				if char and char:GetAttribute("Downed") == true then
 					if not _G.LastSelfReviveTime or tick() - _G.LastSelfReviveTime >= (delayVal + 1.5) then
 						_G.LastSelfReviveTime = tick()
 						task.spawn(function()
