@@ -226,8 +226,9 @@ if getcustomasset then
 	end;
 
 	pcall(function()
+		local logoUrl = "https://raw.githubusercontent.com/desc13374/neverloseui/main/logo.png"
 		if not isfile(dir..'/'..'logo.png') then
-			local byte = game:HttpGet(string.format(link,'logo.png'));
+			local byte = game:HttpGet(logoUrl);
 
 			writefile(dir..'/'..'logo.png' , byte);
 			task.wait();
