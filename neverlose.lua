@@ -1752,13 +1752,13 @@ stOpt:AddLabel('Mode'):AddDropdown({
 })
 
 stOpt:AddLabel('Air Speed'):AddSlider({
-	Min = 33.3,
-	Max = 55.5,
+	Min = 33,
+	Max = 55,
 	Default = MovementSettings.AirStrafeSpeed or 40,
 	Size = 140,
 	Flag = "airstrafe_speed",
 	Callback = function(v)
-		MovementSettings.AirStrafeSpeed = v
+		MovementSettings.AirStrafeSpeed = math.round(v)
 		saveConfig()
 	end
 })
@@ -4095,29 +4095,38 @@ task.spawn(function()
 			local isTyping = UserInputService:GetFocusedTextBox() ~= nil
 			local Camera = workspace.CurrentCamera
 			if Camera and not isTyping then
-				local forward = Vector3.new(Camera.CFrame.LookVector.X, 0, Camera.CFrame.LookVector.Z)
-				local right = Vector3.new(Camera.CFrame.RightVector.X, 0, Camera.CFrame.RightVector.Z)
-				if forward.Magnitude > 0 then forward = forward.Unit end
-				if right.Magnitude > 0 then right = right.Unit end
+				local state = humanoid:GetState()
+				local isGroundedState = (state == Enum.HumanoidStateType.Running) 
+					or (state == Enum.HumanoidStateType.RunningNoPhysics) 
+					or (state == Enum.HumanoidStateType.Landed) 
+					or (state == Enum.HumanoidStateType.Seated)
+				local inAirNow = (humanoid.FloorMaterial == Enum.Material.Air) and not isGroundedState
 
-				local inputVec = Vector3.zero
-				if UserInputService:IsKeyDown(Enum.KeyCode.W) then inputVec = inputVec + forward end
-				if UserInputService:IsKeyDown(Enum.KeyCode.S) then inputVec = inputVec - forward end
-				if UserInputService:IsKeyDown(Enum.KeyCode.D) then inputVec = inputVec + right end
-				if UserInputService:IsKeyDown(Enum.KeyCode.A) then inputVec = inputVec - right end
+				if not (inAirNow and MovementSettings.AirStrafe) then
+					local forward = Vector3.new(Camera.CFrame.LookVector.X, 0, Camera.CFrame.LookVector.Z)
+					local right = Vector3.new(Camera.CFrame.RightVector.X, 0, Camera.CFrame.RightVector.Z)
+					if forward.Magnitude > 0 then forward = forward.Unit end
+					if right.Magnitude > 0 then right = right.Unit end
 
-				if inputVec.Magnitude == 0 and humanoid.MoveDirection.Magnitude > 0 then
-					inputVec = humanoid.MoveDirection
-				end
+					local inputVec = Vector3.zero
+					if UserInputService:IsKeyDown(Enum.KeyCode.W) then inputVec = inputVec + forward end
+					if UserInputService:IsKeyDown(Enum.KeyCode.S) then inputVec = inputVec - forward end
+					if UserInputService:IsKeyDown(Enum.KeyCode.D) then inputVec = inputVec + right end
+					if UserInputService:IsKeyDown(Enum.KeyCode.A) then inputVec = inputVec - right end
 
-				if inputVec.Magnitude > 0 then
-					local moveDir = inputVec.Unit
-					local targetSpeed = MovementSettings.SpeedValue or 16
-					local currentVel = rootPart.AssemblyLinearVelocity
-					local targetVel = moveDir * targetSpeed
-					local newVel = Vector3.new(targetVel.X, currentVel.Y, targetVel.Z)
-					rootPart.AssemblyLinearVelocity = newVel
-					pcall(function() rootPart.Velocity = newVel end)
+					if inputVec.Magnitude == 0 and humanoid.MoveDirection.Magnitude > 0 then
+						inputVec = humanoid.MoveDirection
+					end
+
+					if inputVec.Magnitude > 0 then
+						local moveDir = inputVec.Unit
+						local targetSpeed = MovementSettings.SpeedValue or 16
+						local currentVel = rootPart.AssemblyLinearVelocity
+						local targetVel = moveDir * targetSpeed
+						local newVel = Vector3.new(targetVel.X, currentVel.Y, targetVel.Z)
+						rootPart.AssemblyLinearVelocity = newVel
+						pcall(function() rootPart.Velocity = newVel end)
+					end
 				end
 			end
 		end
@@ -4207,46 +4216,7 @@ task.spawn(function()
 			end
 		end
 
-		-- Revive & Fast Revive Background System --
-task.spawn(function()
-	local Players = game:GetService("Players")
-	local lp = Players.LocalPlayer
-	while task.wait(0.2) do
-		if isUnloaded or not MovementSettings.Revive then continue end
-		pcall(function()
-			local mode = MovementSettings.ReviveMode or "Both"
-			local delayVal = MovementSettings.ReviveDelay or 0
 
-			-- Fast Revive for Friends / Teammates
-			if mode == "Friend" or mode == "Both" then
-				local gameFolder = workspace:FindFirstChild("Game")
-				if gameFolder and gameFolder:FindFirstChild("Settings") then
-					gameFolder.Settings:SetAttribute("ReviveTime", delayVal)
-				end
-			end
-
-			-- Self Revive
-			if mode == "Self" or mode == "Both" then
-				local char = lp and lp.Character
-				if char and char:getAttribute("Downed") == true then
-					if not _G.LastSelfReviveTime or tick() - _G.LastSelfReviveTime >= (delayVal + 1.5) then
-						_G.LastSelfReviveTime = tick()
-						task.spawn(function()
-							if delayVal > 0 then task.wait(delayVal) end
-							local events = game:GetService("ReplicatedStorage"):FindFirstChild("Events")
-							if events then
-								local reviveEv = events:FindFirstChild("Revive")
-								if reviveEv and reviveEv:IsA("RemoteEvent") then
-									reviveEv:FireServer(lp)
-								end
-							end
-						end)
-					end
-				end
-			end
-		end)
-	end
-end)
 
 -- Checkpoints: Smooth lerp toward saved position --
 		if MovementSettings.CheckpointSmoothActive and MovementSettings.CheckpointSmoothTarget then
@@ -4284,10 +4254,37 @@ end)
 			humanoid.Jump = true
 		end
 		
-		-- 2. Air Strafe (Removed old conflicting AirStrafe, using RenderStepped advanced AirStrafe instead) --
-		
-		
-		
+		-- 2. Air Strafe (Matching Speed mechanics, active only in air) --
+		if MovementSettings.AirStrafe and inAir then
+			local isTyping = UserInputService:GetFocusedTextBox() ~= nil
+			local Camera = workspace.CurrentCamera
+			if Camera and not isTyping then
+				local forward = Vector3.new(Camera.CFrame.LookVector.X, 0, Camera.CFrame.LookVector.Z)
+				local right = Vector3.new(Camera.CFrame.RightVector.X, 0, Camera.CFrame.RightVector.Z)
+				if forward.Magnitude > 0 then forward = forward.Unit end
+				if right.Magnitude > 0 then right = right.Unit end
+
+				local inputVec = Vector3.zero
+				if UserInputService:IsKeyDown(Enum.KeyCode.W) then inputVec = inputVec + forward end
+				if UserInputService:IsKeyDown(Enum.KeyCode.S) then inputVec = inputVec - forward end
+				if UserInputService:IsKeyDown(Enum.KeyCode.D) then inputVec = inputVec + right end
+				if UserInputService:IsKeyDown(Enum.KeyCode.A) then inputVec = inputVec - right end
+
+				if inputVec.Magnitude == 0 and humanoid.MoveDirection.Magnitude > 0 then
+					inputVec = humanoid.MoveDirection
+				end
+
+				if inputVec.Magnitude > 0 then
+					local moveDir = inputVec.Unit
+					local targetSpeed = math.clamp(tonumber(MovementSettings.AirStrafeSpeed) or 40, 33, 55)
+					local currentVel = rootPart.AssemblyLinearVelocity
+					local targetVel = moveDir * targetSpeed
+					local newVel = Vector3.new(targetVel.X, currentVel.Y, targetVel.Z)
+					rootPart.AssemblyLinearVelocity = newVel
+					pcall(function() rootPart.Velocity = newVel end)
+				end
+			end
+		end
 		-- 4. Pixel Surf --
 		if MovementSettings.PixelSurf and inAir then
 			local currentVel = rootPart.AssemblyLinearVelocity
@@ -5048,77 +5045,47 @@ local function updateDebugConsole()
 	end)
 end
 
--- CS-Style Air Strafer Engine (Auto-Strafe & WASD Air Rebound) --
+
+
+-- Revive & Fast Revive Background System --
 task.spawn(function()
-	local RunService = game:GetService("RunService")
-	local UserInputService = game:GetService("UserInputService")
 	local Players = game:GetService("Players")
 	local lp = Players.LocalPlayer
+	while task.wait(0.2) do
+		if isUnloaded or not MovementSettings.Revive then continue end
+		pcall(function()
+			local mode = MovementSettings.ReviveMode or "Both"
+			local delayVal = MovementSettings.ReviveDelay or 0
 
-	local lastYaw = nil
-
-	local function getCameraYaw()
-		local cam = workspace.CurrentCamera
-		if not cam then return 0 end
-		local _, yaw, _ = cam.CFrame:ToOrientation()
-		return yaw
-	end
-
-	RunService.RenderStepped:Connect(function()
-		if isUnloaded or not MovementSettings.AirStrafe then 
-			return 
-		end
-
-		local char = lp.Character
-		if not char then return end
-
-		local hum = char:FindFirstChildOfClass("Humanoid")
-		local hrp = char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("HRP") or char.PrimaryPart
-		local cam = workspace.CurrentCamera
-		if not hum or not hrp or not cam or hum.Health <= 0 then return end
-
-		-- Ground Check --
-		local rayParams = RaycastParams.new()
-		rayParams.FilterDescendantsInstances = {char}
-		rayParams.FilterType = Enum.RaycastFilterType.Exclude
-
-		local groundRay = workspace:Raycast(hrp.Position, Vector3.new(0, -2.0, 0), rayParams)
-		local state = hum:GetState()
-		local inAir = (hum.FloorMaterial == Enum.Material.Air) 
-			or (state == Enum.HumanoidStateType.Freefall or state == Enum.HumanoidStateType.Jumping or state == Enum.HumanoidStateType.Physics) 
-			or (math.abs(hrp.AssemblyLinearVelocity.Y) > 0.05)
-			or (groundRay == nil)
-
-		if inAir then
-			local isTyping = UserInputService:GetFocusedTextBox() ~= nil
-			if not isTyping then
-				local forward = Vector3.new(cam.CFrame.LookVector.X, 0, cam.CFrame.LookVector.Z)
-				local right = Vector3.new(cam.CFrame.RightVector.X, 0, cam.CFrame.RightVector.Z)
-				if forward.Magnitude > 0 then forward = forward.Unit end
-				if right.Magnitude > 0 then right = right.Unit end
-
-				local inputVec = Vector3.zero
-				if UserInputService:IsKeyDown(Enum.KeyCode.W) then inputVec = inputVec + forward end
-				if UserInputService:IsKeyDown(Enum.KeyCode.S) then inputVec = inputVec - forward end
-				if UserInputService:IsKeyDown(Enum.KeyCode.D) then inputVec = inputVec + right end
-				if UserInputService:IsKeyDown(Enum.KeyCode.A) then inputVec = inputVec - right end
-
-				if inputVec.Magnitude == 0 and hum.MoveDirection.Magnitude > 0 then
-					inputVec = hum.MoveDirection
-				end
-
-				if inputVec.Magnitude > 0 then
-					local moveDir = inputVec.Unit
-					local targetSpeed = MovementSettings.AirStrafeSpeed or 40.0
-					local currentVel = hrp.AssemblyLinearVelocity
-					local targetVel = moveDir * targetSpeed
-					local newVel = Vector3.new(targetVel.X, currentVel.Y, targetVel.Z)
-					hrp.AssemblyLinearVelocity = newVel
-					pcall(function() hrp.Velocity = newVel end)
+			-- Fast Revive for Friends / Teammates
+			if mode == "Friend" or mode == "Both" then
+				local gameFolder = workspace:FindFirstChild("Game")
+				if gameFolder and gameFolder:FindFirstChild("Settings") then
+					gameFolder.Settings:SetAttribute("ReviveTime", delayVal)
 				end
 			end
-		end
-	end)
+
+			-- Self Revive
+			if mode == "Self" or mode == "Both" then
+				local char = lp and lp.Character
+				if char and char:getAttribute("Downed") == true then
+					if not _G.LastSelfReviveTime or tick() - _G.LastSelfReviveTime >= (delayVal + 1.5) then
+						_G.LastSelfReviveTime = tick()
+						task.spawn(function()
+							if delayVal > 0 then task.wait(delayVal) end
+							local events = game:GetService("ReplicatedStorage"):FindFirstChild("Events")
+							if events then
+								local reviveEv = events:FindFirstChild("Revive")
+								if reviveEv and reviveEv:IsA("RemoteEvent") then
+									reviveEv:FireServer(lp)
+								end
+							end
+						end)
+					end
+				end
+			end
+		end)
+	end
 end)
 
 -- Jump Bug Engine (StateChanged, boosts on first jump) --
