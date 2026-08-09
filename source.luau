@@ -1374,6 +1374,22 @@ function NeverLose:CreateOptionWindow(Frame: Frame , Zindex)
 			})
 
 			shadow:Render(false);
+
+			if Window.ActiveChildren then
+				for _, child in ipairs(Window.ActiveChildren) do
+					local sig = child.Signal or (child.OptionWindow and child.OptionWindow.Signal)
+					if sig then
+						pcall(function() sig:SetValue(false) end)
+					end
+				end
+			end
+			if Window.ActivePopups then
+				for _, popup in ipairs(Window.ActivePopups) do
+					if popup.OpenSignal then
+						pcall(function() popup.OpenSignal:SetValue(false) end)
+					end
+				end
+			end
 		end;
 	end);
 
@@ -1388,6 +1404,8 @@ function NeverLose:CreateOptionWindow(Frame: Frame , Zindex)
 	Payback.Root = OptionHandler;
 	Payback.Signal = Window.Signal;
 	Payback.OptionWindow = Window;
+	Payback.ActiveChildren = Window.ActiveChildren;
+	Payback.ActivePopups = Window.ActivePopups;
 
 	return Payback;
 end;
@@ -2279,21 +2297,26 @@ function NeverLose:RegisiterHandler(Handler: Frame , Signal)
 
 		local function isMouseOverWindowOrChild(win)
 			if not win then return false end
-			if NeverLose:IsMouseOverFrame(win.Root) then return true end
+			local root = win.Root or (win.OptionWindow and win.OptionWindow.Root)
+			if root and NeverLose:IsMouseOverFrame(root) then return true end
 
-			if win.ActivePopups then
-				for _, popup in ipairs(win.ActivePopups) do
+			local activePopups = win.ActivePopups or (win.OptionWindow and win.OptionWindow.ActivePopups)
+			if activePopups then
+				for _, popup in ipairs(activePopups) do
 					if popup.OpenSignal and popup.OpenSignal:GetValue() == true then
-						if popup.Root and NeverLose:IsMouseOverFrame(popup.Root) then
+						local popRoot = popup.Root
+						if popRoot and NeverLose:IsMouseOverFrame(popRoot) then
 							return true
 						end
 					end
 				end
 			end
 
-			if win.ActiveChildren then
-				for _, child in ipairs(win.ActiveChildren) do
-					if child.Signal and child.Signal:GetValue() == true then
+			local activeChildren = win.ActiveChildren or (win.OptionWindow and win.OptionWindow.ActiveChildren)
+			if activeChildren then
+				for _, child in ipairs(activeChildren) do
+					local sig = child.Signal or (child.OptionWindow and child.OptionWindow.Signal)
+					if sig and sig:GetValue() == true then
 						if isMouseOverWindowOrChild(child) then
 							return true
 						end
