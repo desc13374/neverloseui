@@ -5858,7 +5858,7 @@ function NeverLose:CreateWindow(Config)
 		Config = NeverLose:ProcessParams(Config , {
 			Profile = NeverLose.UserProfile,
 			Username = LocalPlayer.DisplayName,
-			Expires = "Never",
+			Expires = "888 days",
 		});
 
 		AccountName.Text = Config.Username;
