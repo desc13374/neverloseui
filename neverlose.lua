@@ -5502,9 +5502,10 @@ end
 -- Context Menu Frame --
 local bindFrame = Instance.new("Frame")
 bindFrame.Name = "BindFrame"
-bindFrame.Size = UDim2.new(0, 220, 0, 108)
-bindFrame.Position = UDim2.new(0.5, -110, 0.4, -54)
-bindFrame.BackgroundColor3 = Color3.fromRGB(15, 17, 24)
+bindFrame.Size = UDim2.new(0, 210, 0, 144)
+bindFrame.Position = UDim2.new(0.5, -105, 0.4, -72)
+bindFrame.BackgroundColor3 = Color3.fromRGB(20, 22, 27)
+bindFrame.BackgroundTransparency = 0.035
 bindFrame.BorderSizePixel = 0
 bindFrame.Visible = false
 bindFrame.ClipsDescendants = true
@@ -5515,123 +5516,172 @@ bindCorner.CornerRadius = UDim.new(0, 10)
 bindCorner.Parent = bindFrame
 
 local bindStroke = Instance.new("UIStroke")
-bindStroke.Color = Color3.fromRGB(38, 43, 58)
-bindStroke.Thickness = 1.2
+bindStroke.Color = Color3.fromRGB(45, 48, 58)
+bindStroke.Transparency = 0.65
+bindStroke.Thickness = 1
 bindStroke.Parent = bindFrame
 
--- Header Title --
-local titleLabel = Instance.new("TextLabel")
-titleLabel.Size = UDim2.new(1, -50, 0, 22)
-titleLabel.Position = UDim2.new(0, 14, 0, 10)
-titleLabel.BackgroundTransparency = 1
-titleLabel.Text = "Binding module"
-titleLabel.TextColor3 = Color3.fromRGB(245, 248, 255)
-titleLabel.TextSize = 13
-titleLabel.Font = Enum.Font.GothamBold
-titleLabel.TextXAlignment = Enum.TextXAlignment.Left
-titleLabel.Parent = bindFrame
+-- Row 1: Key --
+local keyRow = Instance.new("Frame")
+keyRow.Size = UDim2.new(1, -28, 0, 24)
+keyRow.Position = UDim2.new(0, 14, 0, 10)
+keyRow.BackgroundTransparency = 1
+keyRow.Parent = bindFrame
 
--- Trash / Delete Button --
-local deleteBtn = Instance.new("TextButton")
-deleteBtn.Size = UDim2.new(0, 18, 0, 18)
-deleteBtn.Position = UDim2.new(1, -28, 0, 12)
-deleteBtn.BackgroundTransparency = 1
-deleteBtn.Text = "🗑"
-deleteBtn.TextColor3 = Color3.fromRGB(140, 145, 160)
-deleteBtn.TextSize = 12
-deleteBtn.Font = Enum.Font.GothamBold
-deleteBtn.Parent = bindFrame
-
-deleteBtn.MouseEnter:Connect(function()
-	deleteBtn.TextColor3 = Color3.fromRGB(240, 75, 75)
-end)
-deleteBtn.MouseLeave:Connect(function()
-	deleteBtn.TextColor3 = Color3.fromRGB(140, 145, 160)
-end)
-
--- Key Row --
 local keyTitle = Instance.new("TextLabel")
-keyTitle.Size = UDim2.new(0, 60, 0, 24)
-keyTitle.Position = UDim2.new(0, 14, 0, 42)
+keyTitle.Size = UDim2.new(0, 90, 1, 0)
+keyTitle.Position = UDim2.new(0, 0, 0, 0)
 keyTitle.BackgroundTransparency = 1
 keyTitle.Text = "Key"
-keyTitle.TextColor3 = Color3.fromRGB(150, 155, 175)
-keyTitle.TextSize = 11
+keyTitle.TextColor3 = Color3.fromRGB(220, 225, 240)
+keyTitle.TextSize = 12
 keyTitle.Font = Enum.Font.GothamMedium
 keyTitle.TextXAlignment = Enum.TextXAlignment.Left
-keyTitle.Parent = bindFrame
+keyTitle.Parent = keyRow
 
 local keyButton = Instance.new("TextButton")
-keyButton.Size = UDim2.new(0, 82, 0, 24)
-keyButton.Position = UDim2.new(1, -96, 0, 40)
-keyButton.BackgroundColor3 = Color3.fromRGB(22, 25, 34)
+keyButton.Size = UDim2.new(0, 80, 0, 22)
+keyButton.Position = UDim2.new(1, -80, 0, 1)
+keyButton.BackgroundColor3 = Color3.fromRGB(26, 28, 36)
 keyButton.BorderSizePixel = 0
 keyButton.Text = "N/A"
 keyButton.TextColor3 = Color3.fromRGB(240, 245, 255)
 keyButton.TextSize = 11
-keyButton.Font = Enum.Font.GothamBold
-keyButton.Parent = bindFrame
+keyButton.Font = Enum.Font.GothamMedium
+keyButton.Parent = keyRow
 
 local keyBtnCorner = Instance.new("UICorner")
-keyBtnCorner.CornerRadius = UDim.new(0, 6)
+keyBtnCorner.CornerRadius = UDim.new(0, 4)
 keyBtnCorner.Parent = keyButton
 
 local keyBtnStroke = Instance.new("UIStroke")
-keyBtnStroke.Color = Color3.fromRGB(38, 43, 58)
+keyBtnStroke.Color = Color3.fromRGB(45, 48, 58)
 keyBtnStroke.Thickness = 1
 keyBtnStroke.Parent = keyButton
 
--- Mode Row --
+-- Row 2: Mode --
+local modeRow = Instance.new("Frame")
+modeRow.Size = UDim2.new(1, -28, 0, 24)
+modeRow.Position = UDim2.new(0, 14, 0, 38)
+modeRow.BackgroundTransparency = 1
+modeRow.Parent = bindFrame
+
 local modeTitle = Instance.new("TextLabel")
-modeTitle.Size = UDim2.new(0, 70, 0, 24)
-modeTitle.Position = UDim2.new(0, 14, 0, 72)
+modeTitle.Size = UDim2.new(0, 90, 1, 0)
+modeTitle.Position = UDim2.new(0, 0, 0, 0)
 modeTitle.BackgroundTransparency = 1
-modeTitle.Text = "Bind mode"
-modeTitle.TextColor3 = Color3.fromRGB(150, 155, 175)
-modeTitle.TextSize = 11
+modeTitle.Text = "Mode"
+modeTitle.TextColor3 = Color3.fromRGB(220, 225, 240)
+modeTitle.TextSize = 12
 modeTitle.Font = Enum.Font.GothamMedium
 modeTitle.TextXAlignment = Enum.TextXAlignment.Left
-modeTitle.Parent = bindFrame
+modeTitle.Parent = modeRow
 
-local holdBtn = Instance.new("TextButton")
-holdBtn.Size = UDim2.new(0, 55, 0, 24)
-holdBtn.Position = UDim2.new(1, -125, 0, 70)
-holdBtn.BackgroundColor3 = Color3.fromRGB(22, 25, 34)
-holdBtn.BorderSizePixel = 0
-holdBtn.Text = "HOLD"
-holdBtn.TextColor3 = Color3.fromRGB(130, 136, 155)
-holdBtn.TextSize = 10
-holdBtn.Font = Enum.Font.GothamSemibold
-holdBtn.Parent = bindFrame
+local modeDropdownBtn = Instance.new("TextButton")
+modeDropdownBtn.Size = UDim2.new(0, 80, 0, 22)
+modeDropdownBtn.Position = UDim2.new(1, -80, 0, 1)
+modeDropdownBtn.BackgroundColor3 = Color3.fromRGB(26, 28, 36)
+modeDropdownBtn.BorderSizePixel = 0
+modeDropdownBtn.Text = "Toggle ˅"
+modeDropdownBtn.TextColor3 = Color3.fromRGB(200, 205, 220)
+modeDropdownBtn.TextSize = 11
+modeDropdownBtn.Font = Enum.Font.GothamMedium
+modeDropdownBtn.Parent = modeRow
 
-local holdCorner = Instance.new("UICorner")
-holdCorner.CornerRadius = UDim.new(0, 6)
-holdCorner.Parent = holdBtn
+local modeCorner = Instance.new("UICorner")
+modeCorner.CornerRadius = UDim.new(0, 4)
+modeCorner.Parent = modeDropdownBtn
 
-local holdStroke = Instance.new("UIStroke")
-holdStroke.Color = Color3.fromRGB(38, 43, 58)
-holdStroke.Thickness = 1
-holdStroke.Parent = holdBtn
+local modeStroke = Instance.new("UIStroke")
+modeStroke.Color = Color3.fromRGB(45, 48, 58)
+modeStroke.Thickness = 1
+modeStroke.Parent = modeDropdownBtn
 
-local toggleBtn = Instance.new("TextButton")
-toggleBtn.Size = UDim2.new(0, 55, 0, 24)
-toggleBtn.Position = UDim2.new(1, -64, 0, 70)
-toggleBtn.BackgroundColor3 = Color3.fromRGB(225, 45, 55)
-toggleBtn.BorderSizePixel = 0
-toggleBtn.Text = "TOGGLE"
-toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleBtn.TextSize = 10
-toggleBtn.Font = Enum.Font.GothamBold
-toggleBtn.Parent = bindFrame
+modeDropdownBtn.MouseEnter:Connect(function()
+	modeStroke.Color = Color3.fromRGB(78, 127, 252)
+end)
+modeDropdownBtn.MouseLeave:Connect(function()
+	modeStroke.Color = Color3.fromRGB(45, 48, 58)
+end)
 
-local toggleCorner = Instance.new("UICorner")
-toggleCorner.CornerRadius = UDim.new(0, 6)
-toggleCorner.Parent = toggleBtn
+-- Separator 1 --
+local sepLine1 = Instance.new("Frame")
+sepLine1.Size = UDim2.new(1, -28, 0, 1)
+sepLine1.Position = UDim2.new(0, 14, 0, 68)
+sepLine1.BackgroundColor3 = Color3.fromRGB(35, 38, 48)
+sepLine1.BackgroundTransparency = 0.3
+sepLine1.BorderSizePixel = 0
+sepLine1.Parent = bindFrame
 
-local toggleStroke = Instance.new("UIStroke")
-toggleStroke.Color = Color3.fromRGB(255, 80, 85)
-toggleStroke.Thickness = 1
-toggleStroke.Parent = toggleBtn
+-- Row 3: Visible --
+local visibleRow = Instance.new("Frame")
+visibleRow.Size = UDim2.new(1, -28, 0, 24)
+visibleRow.Position = UDim2.new(0, 14, 0, 76)
+visibleRow.BackgroundTransparency = 1
+visibleRow.Parent = bindFrame
+
+local visibleTitle = Instance.new("TextLabel")
+visibleTitle.Size = UDim2.new(0, 90, 1, 0)
+visibleTitle.Position = UDim2.new(0, 0, 0, 0)
+visibleTitle.BackgroundTransparency = 1
+visibleTitle.Text = "Visible"
+visibleTitle.TextColor3 = Color3.fromRGB(220, 225, 240)
+visibleTitle.TextSize = 12
+visibleTitle.Font = Enum.Font.GothamMedium
+visibleTitle.TextXAlignment = Enum.TextXAlignment.Left
+visibleTitle.Parent = visibleRow
+
+local visibleToggleFrame = Instance.new("TextButton")
+visibleToggleFrame.Size = UDim2.new(0, 30, 0, 18)
+visibleToggleFrame.Position = UDim2.new(1, -30, 0, 3)
+visibleToggleFrame.BackgroundColor3 = Color3.fromRGB(78, 127, 252)
+visibleToggleFrame.BorderSizePixel = 0
+visibleToggleFrame.Text = ""
+visibleToggleFrame.Parent = visibleRow
+
+local visCorner = Instance.new("UICorner")
+visCorner.CornerRadius = UDim.new(1, 0)
+visCorner.Parent = visibleToggleFrame
+
+local visibleKnob = Instance.new("Frame")
+visibleKnob.AnchorPoint = Vector2.new(0.5, 0.5)
+visibleKnob.Size = UDim2.new(0, 14, 0, 14)
+visibleKnob.Position = UDim2.new(0.7, 0, 0.5, 0)
+visibleKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+visibleKnob.BorderSizePixel = 0
+visibleKnob.Parent = visibleToggleFrame
+
+local knobCorner = Instance.new("UICorner")
+knobCorner.CornerRadius = UDim.new(1, 0)
+knobCorner.Parent = visibleKnob
+
+-- Separator 2 --
+local sepLine2 = Instance.new("Frame")
+sepLine2.Size = UDim2.new(1, -28, 0, 1)
+sepLine2.Position = UDim2.new(0, 14, 0, 106)
+sepLine2.BackgroundColor3 = Color3.fromRGB(35, 38, 48)
+sepLine2.BackgroundTransparency = 0.3
+sepLine2.BorderSizePixel = 0
+sepLine2.Parent = bindFrame
+
+-- Row 4: Delete Hotkey --
+local deleteBtn = Instance.new("TextButton")
+deleteBtn.Size = UDim2.new(1, -28, 0, 22)
+deleteBtn.Position = UDim2.new(0, 14, 0, 114)
+deleteBtn.BackgroundTransparency = 1
+deleteBtn.Text = "Delete hotkey"
+deleteBtn.TextColor3 = Color3.fromRGB(240, 80, 80)
+deleteBtn.TextSize = 11
+deleteBtn.Font = Enum.Font.GothamSemibold
+deleteBtn.TextXAlignment = Enum.TextXAlignment.Left
+deleteBtn.Parent = bindFrame
+
+deleteBtn.MouseEnter:Connect(function()
+	deleteBtn.TextColor3 = Color3.fromRGB(255, 110, 110)
+end)
+deleteBtn.MouseLeave:Connect(function()
+	deleteBtn.TextColor3 = Color3.fromRGB(240, 80, 80)
+end)
 
 -- Bind State & Mouse Hover Management --
 local currentBindingFlag = nil
@@ -5649,25 +5699,21 @@ end)
 
 local function updateModeButtons(mode)
 	if mode == "HOLD" then
-		holdBtn.BackgroundColor3 = Color3.fromRGB(225, 45, 55)
-		holdBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-		holdBtn.Font = Enum.Font.GothamBold
-		holdStroke.Color = Color3.fromRGB(255, 80, 85)
-		
-		toggleBtn.BackgroundColor3 = Color3.fromRGB(24, 28, 38)
-		toggleBtn.TextColor3 = Color3.fromRGB(130, 136, 155)
-		toggleBtn.Font = Enum.Font.GothamSemibold
-		toggleStroke.Color = Color3.fromRGB(38, 43, 58)
+		modeDropdownBtn.Text = "Hold ˅"
 	else
-		toggleBtn.BackgroundColor3 = Color3.fromRGB(225, 45, 55)
-		toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-		toggleBtn.Font = Enum.Font.GothamBold
-		toggleStroke.Color = Color3.fromRGB(255, 80, 85)
-		
-		holdBtn.BackgroundColor3 = Color3.fromRGB(24, 28, 38)
-		holdBtn.TextColor3 = Color3.fromRGB(130, 136, 155)
-		holdBtn.Font = Enum.Font.GothamSemibold
-		holdStroke.Color = Color3.fromRGB(38, 43, 58)
+		modeDropdownBtn.Text = "Toggle ˅"
+	end
+end
+
+local function updateVisibleToggle(isVis)
+	if isVis then
+		visibleToggleFrame.BackgroundColor3 = Color3.fromRGB(78, 127, 252)
+		visibleKnob.Position = UDim2.new(0.7, 0, 0.5, 0)
+		visibleKnob.BackgroundTransparency = 0
+	else
+		visibleToggleFrame.BackgroundColor3 = Color3.fromRGB(10, 13, 21)
+		visibleKnob.Position = UDim2.new(0.3, 0, 0.5, 0)
+		visibleKnob.BackgroundTransparency = 0.5
 	end
 end
 
@@ -5688,12 +5734,30 @@ local function isMouse3Down()
 	return false
 end
 
+local function isMouse4Down()
+	local UIS = game:GetService("UserInputService")
+	local ok, res = pcall(function() return UIS:IsMouseButtonPressed(Enum.UserInputType.MouseButton4) end)
+	if ok and res then return true end
+	return false
+end
+
+local function isMouse5Down()
+	local UIS = game:GetService("UserInputService")
+	local ok, res = pcall(function() return UIS:IsMouseButtonPressed(Enum.UserInputType.MouseButton5) end)
+	if ok and res then return true end
+	return false
+end
+
 local function isKeyMatch(input, bindKey)
 	if not bindKey or not input then return false end
 	local keyName = typeof(bindKey) == "EnumItem" and bindKey.Name or tostring(bindKey)
 
 	if keyName == "M3B" or keyName == "MouseButton3" then
 		return isMouse3Down()
+	elseif keyName == "MouseButton4" then
+		return isMouse4Down()
+	elseif keyName == "MouseButton5" then
+		return isMouse5Down()
 	end
 	
 	if typeof(bindKey) == "EnumItem" then
@@ -5716,12 +5780,12 @@ end
 
 local function openBindMenu(moduleName, flag, callback)
 	currentBindingFlag = flag
-	titleLabel.Text = moduleName
 	listeningForKey = false
 	isMouseOverBindFrame = true
 	
-	keyButton.BackgroundColor3 = Color3.fromRGB(24, 28, 38)
-	keyBtnStroke.Color = Color3.fromRGB(42, 48, 65)
+	keyButton.BackgroundColor3 = Color3.fromRGB(26, 28, 36)
+	keyBtnStroke.Color = Color3.fromRGB(45, 48, 58)
+	keyButton.TextColor3 = Color3.fromRGB(240, 245, 255)
 	
 	if not ModuleBinds[flag] then
 		ModuleBinds[flag] = { Key = nil, Mode = "TOGGLE", Callback = callback, State = false }
@@ -5733,12 +5797,16 @@ local function openBindMenu(moduleName, flag, callback)
 	keyButton.Text = formatKeyName(bindData.Key)
 	updateModeButtons(bindData.Mode)
 	
+	local indicatorVis = MovementSettings.IndicatorVisibility or {}
+	local isVis = indicatorVis[flag] ~= false
+	updateVisibleToggle(isVis)
+	
 	local mousePos = UserInputService:GetMouseLocation()
 	local cam = workspace.CurrentCamera
 	local maxX = cam and cam.ViewportSize.X or 1000
 	local maxY = cam and cam.ViewportSize.Y or 800
 	
-	bindFrame.Position = UDim2.new(0, math.min(mousePos.X, maxX - 215), 0, math.min(mousePos.Y, maxY - 125))
+	bindFrame.Position = UDim2.new(0, math.min(mousePos.X, maxX - 215), 0, math.min(mousePos.Y, maxY - 150))
 	bindFrame.Visible = true
 end
 
@@ -5827,6 +5895,8 @@ deleteBtn.MouseButton1Click:Connect(function()
 		listeningForKey = false
 		keyButton.BackgroundColor3 = Color3.fromRGB(24, 28, 38)
 		keyBtnStroke.Color = Color3.fromRGB(42, 48, 65)
+		keyButton.TextColor3 = Color3.fromRGB(240, 245, 255)
+		bindFrame.Visible = false
 	end
 end)
 
@@ -5835,12 +5905,14 @@ keyButton.MouseButton1Click:Connect(function()
 		listeningForKey = false
 		keyButton.BackgroundColor3 = Color3.fromRGB(24, 28, 38)
 		keyBtnStroke.Color = Color3.fromRGB(42, 48, 65)
+		keyButton.TextColor3 = Color3.fromRGB(240, 245, 255)
 		local bindData = currentBindingFlag and ModuleBinds[currentBindingFlag]
 		keyButton.Text = bindData and bindData.Key and formatKeyName(bindData.Key) or "N/A"
 	else
 		listeningForKey = true
-		keyButton.BackgroundColor3 = Color3.fromRGB(225, 45, 55)
-		keyBtnStroke.Color = Color3.fromRGB(255, 90, 95)
+		keyButton.BackgroundColor3 = Color3.fromRGB(20, 32, 54)
+		keyBtnStroke.Color = Color3.fromRGB(78, 127, 252)
+		keyButton.TextColor3 = Color3.fromRGB(120, 175, 255)
 		keyButton.Text = "..."
 		ignoreInitialClick = true
 		task.defer(function()
@@ -5849,19 +5921,31 @@ keyButton.MouseButton1Click:Connect(function()
 	end
 end)
 
-holdBtn.MouseButton1Click:Connect(function()
+modeDropdownBtn.MouseButton1Click:Connect(function()
 	if currentBindingFlag and ModuleBinds[currentBindingFlag] then
-		ModuleBinds[currentBindingFlag].Mode = "HOLD"
-		updateModeButtons("HOLD")
+		local currentMode = ModuleBinds[currentBindingFlag].Mode or "TOGGLE"
+		local newMode = (currentMode == "TOGGLE") and "HOLD" or "TOGGLE"
+		ModuleBinds[currentBindingFlag].Mode = newMode
+		updateModeButtons(newMode)
 		SaveModuleBinds()
 	end
 end)
 
-toggleBtn.MouseButton1Click:Connect(function()
-	if currentBindingFlag and ModuleBinds[currentBindingFlag] then
-		ModuleBinds[currentBindingFlag].Mode = "TOGGLE"
-		updateModeButtons("TOGGLE")
-		SaveModuleBinds()
+visibleToggleFrame.MouseButton1Click:Connect(function()
+	if currentBindingFlag then
+		if not MovementSettings.IndicatorVisibility then
+			MovementSettings.IndicatorVisibility = {}
+		end
+		local currentVis = MovementSettings.IndicatorVisibility[currentBindingFlag] ~= false
+		local newVis = not currentVis
+		MovementSettings.IndicatorVisibility[currentBindingFlag] = newVis
+		updateVisibleToggle(newVis)
+		if typeof(updateKeybindsDisplay) == "function" then
+			pcall(updateKeybindsDisplay)
+		end
+		if typeof(saveConfig) == "function" then
+			pcall(saveConfig)
+		end
 	end
 end)
 
@@ -5997,9 +6081,9 @@ UserInputService.InputBegan:Connect(function(input, gpe)
 			return -- Ignore MOUSE1 and MOUSE2
 		elseif inputTypeName == "MouseButton3" then
 			selectedKey = Enum.UserInputType.MouseButton3
-		elseif isMouse4Down() or inputTypeName == "MouseButton4" or keyCodeName == "MouseButton4" then
+		elseif inputTypeName == "MouseButton4" or keyCodeName == "MouseButton4" or isMouse4Down() then
 			selectedKey = "MouseButton4"
-		elseif isMouse5Down() or inputTypeName == "MouseButton5" or keyCodeName == "MouseButton5" then
+		elseif inputTypeName == "MouseButton5" or keyCodeName == "MouseButton5" or isMouse5Down() then
 			selectedKey = "MouseButton5"
 		elseif isKeyboard and keyCode and keyCode ~= Enum.KeyCode.Unknown then
 			selectedKey = keyCode
